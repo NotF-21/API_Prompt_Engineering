@@ -4,7 +4,7 @@ const express = require("express");
 const router = express.Router();
 
 const API_KEY = "9bf25b372702bb91871f585a35997be0";
-const OPENAI_API_KEY = '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'; // Replace with your actual API key
+const OPENAI_API_KEY = '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'; // Replace with your actual API key
 
 const getCurrentWeather = async () => {
     const link = `https://api.openweathermap.org/data/2.5/weather?lat=-7.2459717&lon=112.7378266&appid=${API_KEY}&units=metric`;
@@ -14,6 +14,13 @@ const getCurrentWeather = async () => {
         temperature: query.data.main.temp,
         wind_speed: query.data.wind.speed,
         humidity: query.data.main.humidity,
+    };
+};
+
+const getImage = async () => {
+    const link = `https://api.openweathermap.org/data/2.5/weather?lat=-7.2459717&lon=112.7378266&appid=${API_KEY}&units=metric`;
+    const query = await axios.get(link);
+    return {
         image : query.data.weather[0].icon,
     };
 };
@@ -31,6 +38,7 @@ router.get("/", async (req, res) => {
 router.get("/naration", async (req, res) => {
     try {
         const weatherData = await getCurrentWeather();
+        const image = await getImage();
         const requestData = {
             model: 'gpt-3.5-turbo-0613',
             messages: [
@@ -92,10 +100,10 @@ router.get("/naration", async (req, res) => {
 
         return res.status(200).send({
             message : query2.data.choices[0].message.content,
-            image : weatherData.image,
+            image : image.image,
         });
     } catch (error) {
-        return res.status(500).send('Internal Server Error');
+        return res.status(500).send('Internal Server Error' + error.toString());
     }
 });
 
