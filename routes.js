@@ -4,7 +4,7 @@ const express = require("express");
 const router = express.Router();
 
 const API_KEY = "9bf25b372702bb91871f585a35997be0";
-const OPENAI_API_KEY = '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'; // Replace with your actual API key
+const OPENAI_API_KEY = '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'; // Replace with your actual API key
 
 const getCurrentWeather = async () => {
     const link = `https://api.openweathermap.org/data/2.5/weather?lat=-7.2459717&lon=112.7378266&appid=${API_KEY}&units=metric`;
