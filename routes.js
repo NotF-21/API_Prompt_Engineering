@@ -103,7 +103,7 @@ router.get("/naration", async (req, res) => {
             image : image.image,
         });
     } catch (error) {
-        return res.status(500).send('Internal Server Error' + error.toString() + process.env);
+        return res.status(500).send('Internal Server Error ' + error.toString() + process.env);
     }
 });
 
