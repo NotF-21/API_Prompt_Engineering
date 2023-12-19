@@ -21,17 +21,6 @@ const lanReq = new Map();
 lanReq.set("id", "Bahasa Indonesia");
 lanReq.set("en", "English");
 
-const getCurrentWeather = async () => {
-    const link = `https://api.openweathermap.org/data/2.5/weather?lat=-7.2459717&lon=112.7378266&appid=${API_KEY}&units=metric`;
-    const query = await axios.get(link);
-    return {
-        weather: query.data.weather[0].main,
-        temperature: query.data.main.temp,
-        wind_speed: query.data.wind.speed,
-        humidity: query.data.main.humidity,
-    };
-};
-
 const getCityWeather = async (city) => {
     const link = cityMap.get(city);
     const query = await axios.get(link);
@@ -43,14 +32,6 @@ const getCityWeather = async (city) => {
     };
 };
 
-const getImage = async () => {
-    const link = `https://api.openweathermap.org/data/2.5/weather?lat=-7.2459717&lon=112.7378266&appid=${API_KEY}&units=metric`;
-    const query = await axios.get(link);
-    return {
-        image : query.data.weather[0].icon,
-    };
-};
-
 const getCityImage = async (city) => {
     const link = cityMap.get(city);
     const query = await axios.get(link);
@@ -59,9 +40,9 @@ const getCityImage = async (city) => {
     };
 };
 
-router.get("/", async (req, res) => {
+router.get("/weather", async (req, res) => {
     try {
-        const weatherData = await getCityWeather("bnd");
+        const weatherData = await getCityWeather("sby");
         return res.status(200).send(weatherData);
     } catch (error) {
         console.error('Error:', error.message);
@@ -69,7 +50,7 @@ router.get("/", async (req, res) => {
     }
 });
 
-router.get("/naration/:city/:lan", async (req, res) => {
+router.get("/weather/naration/:city/:lan", async (req, res) => {
     console.log(req.params);
     let {city, lan} = req.params;
 
@@ -160,6 +141,14 @@ router.get("/naration/:city/:lan", async (req, res) => {
     } catch (error) {
         return res.status(500).send('Internal Server Error ' + error.toString() + process.env);
     }
+});
+
+router.post("/message", async (req,res) => {
+    let {message} = req.body;
+
+    
+
+    // return res.status(200).send(message);
 });
 
 module.exports = router;

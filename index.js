@@ -8,7 +8,7 @@ app.use(express.urlencoded({extended: true}));
 
 const routes = require("./routes");
 
-app.use("/weather", routes);
+app.use("/", routes);
 
 app.listen(app.get("port"), () => {
     console.log(`Server started at http://localhost:${app.get("port")}`);
