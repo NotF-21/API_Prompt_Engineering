@@ -1,6 +1,11 @@
 const axios = require("axios");
 const express = require("express");
 
+const translatte = require("translatte");
+const keyword_extractor = require("keyword-extractor");
+
+var stringSimilarity = require("string-similarity");
+
 const router = express.Router();
 
 const API_KEY = "9bf25b372702bb91871f585a35997be0";
@@ -144,11 +149,193 @@ router.get("/weather/naration/:city/:lan", async (req, res) => {
 });
 
 router.post("/message", async (req,res) => {
-    let {message} = req.body;
+    let {message, lan} = req.body;
 
+    const weatherData = await getCityWeather("sby");
+
+    const resMessage = await translatte(message, {
+        to:'en',
+    });
+
+    const resArr = await keyword_extractor.extract(resMessage.text,{
+        language:"english",
+        remove_digits: true,
+        return_changed_case:true,
+        remove_duplicates: false
+    });
+
+    var foodMatch = await stringSimilarity.findBestMatch("food", resArr);
+
+    if (foodMatch.bestMatch.rating>=0.75) {
+        //PROCESS FOOD
+        const requestData = {
+            model: 'gpt-3.5-turbo-0613',
+            messages: [
+                { role: 'user', content: 'What is the suitable food recommendation for the given weather ?' },
+                {
+                    role: 'assistant',
+                    content: null,
+                    function_call: {
+                        name: 'get_food_rec',
+                        arguments: JSON.stringify({
+                            city: cityReq.get("sby"),
+                            language: lanReq.get(lan),
+                            weather: weatherData.weather,
+                            temperature: weatherData.temperature,
+                            wind_speed: weatherData.wind_speed,
+                            humidity: weatherData.humidity,
+                        }),
+                    },
+                },
+                {
+                    role: 'function',
+                    name: 'get_food_rec',
+                    content: JSON.stringify({
+                        city: cityReq.get("sby"),
+                        language: lanReq.get(lan),
+                        weather: weatherData.weather,
+                        temperature: weatherData.temperature,
+                        wind_speed: weatherData.wind_speed,
+                        humidity: weatherData.humidity,
+                    }),
+                },
+            ],
+            functions: [
+                {
+                    name: 'get_food_rec',
+                    description: 'Get the recommended food with the given location and weather.',
+                    parameters: {
+                        type: 'object',
+                        properties: {
+                            city: {
+                                type: 'string',
+                                description: 'The city, e.g., Surabaya, Bandung, Jakarta',
+                            },
+                            language: {
+                                type: 'string',
+                                description: 'The language for the response, either "English" or "Bahasa Indonesia"',
+                            },
+                            weather: {
+                                type: 'string',
+                                description: 'The description of weather',
+                            },
+                            temperature: {
+                                type: 'string',
+                                description: 'The temperature of weather, in Celcius',
+                            },
+                            wind_speed: {
+                                type: 'string',
+                                description: 'The wind speed, in meter per second',
+                            },
+                            humidity: {
+                                type: 'string',
+                                description: 'The humidity, in %',
+                            },
+                        },
+                        required: ['city', 'language'],
+                    },
+                },
+            ],
+        };
+
+        const query2 = await axios.post('https://api.openai.com/v1/chat/completions', requestData, {
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${OPENAI_API_KEY}`,
+            },
+        });
+
+        return res.status(200).send({
+            message : query2.data.choices[0].message.content,
+        });
+    } else {
+        var drinkMatch = await stringSimilarity.findBestMatch("drink", resArr);
+        
+        if (drinkMatch.bestMatch.rating>=0.75) {
+            const requestData = {
+                model: 'gpt-3.5-turbo-0613',
+                messages: [
+                    { role: 'user', content: 'What is the suitable drink recommendation for the given weather ?' },
+                    {
+                        role: 'assistant',
+                        content: null,
+                        function_call: {
+                            name: 'get_food_rec',
+                            arguments: JSON.stringify({
+                                city: cityReq.get("sby"),
+                                language: lanReq.get(lan),
+                                weather: weatherData.weather,
+                                temperature: weatherData.temperature,
+                                wind_speed: weatherData.wind_speed,
+                                humidity: weatherData.humidity,
+                            }),
+                        },
+                    },
+                    {
+                        role: 'function',
+                        name: 'get_food_rec',
+                        content: JSON.stringify({
+                            city: cityReq.get("sby"),
+                            language: lanReq.get(lan),
+                            weather: weatherData.weather,
+                            temperature: weatherData.temperature,
+                            wind_speed: weatherData.wind_speed,
+                            humidity: weatherData.humidity,
+                        }),
+                    },
+                ],
+                functions: [
+                    {
+                        name: 'get_food_rec',
+                        description: 'Get the recommended food with the given location and weather.',
+                        parameters: {
+                            type: 'object',
+                            properties: {
+                                city: {
+                                    type: 'string',
+                                    description: 'The city, e.g., Surabaya, Bandung, Jakarta',
+                                },
+                                language: {
+                                    type: 'string',
+                                    description: 'The language for the response, either "English" or "Bahasa Indonesia"',
+                                },
+                                weather: {
+                                    type: 'string',
+                                    description: 'The description of weather',
+                                },
+                                temperature: {
+                                    type: 'string',
+                                    description: 'The temperature of weather, in Celcius',
+                                },
+                                wind_speed: {
+                                    type: 'string',
+                                    description: 'The wind speed, in meter per second',
+                                },
+                                humidity: {
+                                    type: 'string',
+                                    description: 'The humidity, in %',
+                                },
+                            },
+                            required: ['city', 'language'],
+                        },
+                    },
+                ],
+            };
     
-
-    // return res.status(200).send(message);
+            const query2 = await axios.post('https://api.openai.com/v1/chat/completions', requestData, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${OPENAI_API_KEY}`,
+                },
+            });
+    
+            return res.status(200).send({
+                message : query2.data.choices[0].message.content,
+            });
+        } else {
+            return res.status(200).send("Please send your message clearer next time...");
+        }
+    }
 });
 
 module.exports = router;
