@@ -178,7 +178,7 @@ router.post("/message", async (req,res) => {
                     function_call: {
                         name: 'get_food_rec',
                         arguments: JSON.stringify({
-                            city: cityReq.get("sby"),
+                            city: cityReq.get(city),
                             language: lanReq.get(lan),
                             weather: weatherData.weather,
                             temperature: weatherData.temperature,
@@ -191,7 +191,7 @@ router.post("/message", async (req,res) => {
                     role: 'function',
                     name: 'get_food_rec',
                     content: JSON.stringify({
-                        city: cityReq.get("sby"),
+                        city: cityReq.get(city),
                         language: lanReq.get(lan),
                         weather: weatherData.weather,
                         temperature: weatherData.temperature,
@@ -262,7 +262,7 @@ router.post("/message", async (req,res) => {
                         function_call: {
                             name: 'get_food_rec',
                             arguments: JSON.stringify({
-                                city: cityReq.get("sby"),
+                                city: cityReq.get(city),
                                 language: lanReq.get(lan),
                                 weather: weatherData.weather,
                                 temperature: weatherData.temperature,
@@ -275,7 +275,7 @@ router.post("/message", async (req,res) => {
                         role: 'function',
                         name: 'get_food_rec',
                         content: JSON.stringify({
-                            city: cityReq.get("sby"),
+                            city: cityReq.get(city),
                             language: lanReq.get(lan),
                             weather: weatherData.weather,
                             temperature: weatherData.temperature,
