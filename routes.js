@@ -149,9 +149,9 @@ router.get("/weather/naration/:city/:lan", async (req, res) => {
 });
 
 router.post("/message", async (req,res) => {
-    let {message, lan} = req.body;
+    let {message, lan, city} = req.body;
 
-    const weatherData = await getCityWeather("sby");
+    const weatherData = await getCityWeather(city);
 
     const resMessage = await translatte(message, {
         to:'en',
