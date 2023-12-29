@@ -522,7 +522,7 @@ router.post("/message", async (req,res) => {
             ],
             functions: [
                 {
-                    name: 'get_food_rec',
+                    name: 'get_recipe',
                     description: 'Get the recipe for the food or drink in the message.',
                     parameters: {
                         type: 'object',
